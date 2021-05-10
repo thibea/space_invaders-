@@ -62,11 +62,7 @@ def borders():
         uart.write("#")
 
         
-def vaisseau_enemi_init (Vaisseau_enemi,x,y,skin):
-    Vaisseau_enemi.visible = True
-    Vaisseau_enemi.x = x
-    Vaisseau_enemi.y = y
-    Vaisseau_enemi.skin = "\~~V~~/"
+vaisseau_en=Vaisseau_enemi(x, y, "\~~V~~/", true)
 
 def Vaisseau_enemi_draw (Vaisseau_enemi):
     if Vaisseau_enemi==visible:
