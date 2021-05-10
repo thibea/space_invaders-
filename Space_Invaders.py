@@ -1,13 +1,16 @@
 from pyb import SPI,UART, Pin, Timer, LED
 
+numéro_uart = 2
 
+uart = pyb.UART(numéro_uart)
+uart.init (115200 , bits = 8 , parity = None , stop = 1)
 
 class Vaisseau:
     def __init__ (self,x,y,skin):
         self.x=x
         self.y=y
         self.skin=skin
-        
+
 Haut=80
 large=24
 Xmin=1
@@ -22,7 +25,9 @@ X_Left = 1
 Y_Top = 1
 Y_Bottom = 52
 Y_Vaisseau = 50
-    
+
+vaisseau=Vaisseau((Xmax+Xmin)//2, Y_Bottom-2, "/~~O~~/")    
+
 class Vaisseau_enemi:
     def __init__(self,x,y,skin,visible):
         self.x=x
@@ -47,13 +52,16 @@ t.callback(clock)
 
 def borders():
     move(X_Left,Y_Top)
-    uart.write("#"* large)
-    move(X_Left,Haut)
-    uart.write("#"* large)
-    for y in range (1, Haut):
-        move (1,y)
+    uart.write("#"* (X_Right-X_Left))
+    move(X_Left,Y_Bottom)
+    uart.write("#"* (X_Right-X_Left))
+    for y in range (Y_Top, Y_Bottom):
+        move (X_Left,y)
         uart.write("#")
-    
+        move(X_Right, y)
+        uart.write("#")
+
+        
 def vaisseau_enemi_init (Vaisseau_enemi,x,y,skin):
     Vaisseau_enemi.visible = True
     Vaisseau_enemi.x = x
@@ -74,9 +82,8 @@ def wait_pin_change(pin, etat_souhaite):
             active += 1
         else:
             active = 0
-        delay(1)
-
-       
+        delay(1)    
+        
 CS = Pin("PE3", Pin.OUT_PP)
 SPI_1 = SPI(
     1,  # PA5, PA6, PA7
@@ -117,21 +124,36 @@ addr_who_am_i = 0x0F
 print(read_reg(addr_who_am_i))
 addr_ctrl_reg4 = 0x20
 write_reg(addr_ctrl_reg4, 0x77)
+clear_ecran()
+borders()
+
 while True:
     x_accel = read_acceleration(0x28)
     y_accel = read_acceleration(0x2A)
 
-    print("{:20}, {:20}".format(x_accel, y_accel))
-
+    #print("{:20}, {:20}".format(x_accel, y_accel))
+    print(vaisseau.x,vaisseau.y)
+    
     seuil = 0x12C           #valeur de 300 mg
     led_px , led_nx  = LED (1) , LED (2)
+    
     if x_accel > seuil:
         led_px.on()
+        move(vaisseau.x, vaisseau.y)
+        uart.write("       ")
+        vaisseau.x+=1
+        move(vaisseau.x, vaisseau.y)
+        uart.write(vaisseau.skin)
     else:
         led_px.off()
         
     if x_accel < -seuil:
         led_nx.on()
+        move(vaisseau.x, vaisseau.y)
+        uart.write("       ")
+        vaisseau.x-=1
+        move(vaisseau.x, vaisseau.y)
+        uart.write(vaisseau.skin)
     else:
         led_nx.off()
-           
+         
