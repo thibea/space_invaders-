@@ -62,14 +62,14 @@ def borders():
         uart.write("#")
 
 def colision_left ():
-    if x> X_Left+1:
+    if vaisseau.x> X_Left+1:
         vaisseau.x-=1
 
 def colision_right():
-    if x<X_Right - vaisseau.skin:
+    if vaisseau.x<X_Right - 5:
         vaisseau.x+=1
 
-vaisseau_en=Vaisseau_enemi(x, y, "\~~V~~/", true)
+vaisseau_en=Vaisseau_enemi(X_Right, Ymax, "\~~V~~/", True)
 
 def Vaisseau_enemi_draw (Vaisseau_enemi):
     if Vaisseau_enemi==visible:
@@ -143,8 +143,9 @@ while True:
     if x_accel > seuil:
         led_px.on()
         move(vaisseau.x, vaisseau.y)
-        uart.write("                      ")
+        uart.write("      ")
         vaisseau.x+=1
+        colision_right()()
         move(vaisseau.x, vaisseau.y)
         uart.write(vaisseau.skin)
     else:
@@ -153,10 +154,12 @@ while True:
     if x_accel < -seuil:
         led_nx.on()
         move(vaisseau.x, vaisseau.y)
-        uart.write("                      ")
+        uart.write("      ")
         vaisseau.x-=1
+        colision_left()()
         move(vaisseau.x, vaisseau.y)
         uart.write(vaisseau.skin)
+
     else:
         led_nx.off()
          
